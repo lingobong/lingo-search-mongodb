@@ -1,0 +1,23 @@
+{
+  "name": "lingo-search-mongodb",
+  "version": "1.0.1",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "license": "ISC",
+  "description": "LingoSearch : NodeJS Similarity Search-Engine",
+  "dependencies": {
+    "runes": "^0.4.3"
+  },
+  "homepage": "https://github.com/lendland/lingo-search-mongodb",
+  "author": {
+    "name": "JaeWan, Ryu",
+    "email": "rwh9969@gmail.com",
+    "url": "https://github.com/lendland/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/lendland/lingo-search-mongodb.git"
+  }
+}
