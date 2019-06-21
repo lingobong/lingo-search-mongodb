@@ -7,6 +7,6 @@ const LingoSearchSchema = new mongoose.Schema({
     ],
 });
 LingoSearchSchema.index({ unique_key: 1 }, { unique: true });
-LingoSearchSchema.index({ 'scores.key': 1, 'scores.score': 1 }, { unique: true });
+LingoSearchSchema.index({ 'scores.key': 1, 'scores.score': -1 });
 
 module.exports = LingoSearchSchema;
