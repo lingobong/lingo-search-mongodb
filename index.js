@@ -132,7 +132,7 @@ function LingoSearchMongodb(options = {}) {
                         },
                     });
                 }
-                !shutdownGroup && 
+                !searchOptions.shutdownGroup && 
                 aggregate.push({
                     $group: {
                         _id: {
@@ -151,23 +151,9 @@ function LingoSearchMongodb(options = {}) {
                 });
                 (searchOptions.aggregateAfterGroup || emptyFunction)(aggregate);
 
-                // Aggregate - Sort
-                if (!!searchOptions.sort) {// sort check
-                    (searchOptions.aggregateBeforeSort || emptyFunction)(aggregate);
-                    for (let field in searchOptions.sort) {
-                        let orderTypes = { desc: -1, asc: 1, };
-                        searchOptions.sort[field] = orderTypes[ searchOptions.sort[field] ] || searchOptions.sort[field];
-                    }
-                    !shutdownSort && 
-                    aggregate.push({
-                        $sort: searchOptions.sort,
-                    });
-                    (searchOptions.aggregateAfterSort || emptyFunction)(aggregate);
-                }
-
                 // Aggregate - Project
                 (searchOptions.aggregateBeforeProject || emptyFunction)(aggregate);
-                !shutdownProject && 
+                !searchOptions.shutdownProject && 
                 aggregate.push({
                     $project: {
                         _id: 0,
@@ -178,10 +164,24 @@ function LingoSearchMongodb(options = {}) {
                 });
                 (searchOptions.aggregateAfterProject || emptyFunction)(aggregate);
 
+                // Aggregate - Sort
+                if (!!searchOptions.sort) {// sort check
+                    (searchOptions.aggregateBeforeSort || emptyFunction)(aggregate);
+                    for (let field in searchOptions.sort) {
+                        let orderTypes = { desc: -1, asc: 1, };
+                        searchOptions.sort[field] = orderTypes[ searchOptions.sort[field] ] || searchOptions.sort[field];
+                    }
+                    !searchOptions.shutdownSort && 
+                    aggregate.push({
+                        $sort: searchOptions.sort,
+                    });
+                    (searchOptions.aggregateAfterSort || emptyFunction)(aggregate);
+                }
+
                 // Aggregate - Skip
                 if (!!searchOptions.skip) {
                     (searchOptions.aggregateBeforeSkip || emptyFunction)(aggregate);
-                    !shutdownSkip && 
+                    !searchOptions.shutdownSkip && 
                     aggregate.push({
                         $skip: searchOptions.skip,
                     });
@@ -190,7 +190,7 @@ function LingoSearchMongodb(options = {}) {
 
                 // Aggregate - Limit
                 (searchOptions.aggregateBeforeLimit || emptyFunction)(aggregate);
-                !shutdownLimit && 
+                !searchOptions.shutdownLimit && 
                 aggregate.push({
                     $limit: searchOptions.limit,
                 });
