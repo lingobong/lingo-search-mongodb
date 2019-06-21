@@ -6,7 +6,7 @@ const models = require('./models');
  * + modelNames
  */
 function LingoSearchMongodb(options = {}) {
-    const LS = require('../lingo-search')(options);
+    const LS = require('lingo-search')(options);
     const LSMModels = models(LS.options.db, options.modelNames);
     
     const LSM = function () { };
