@@ -221,7 +221,6 @@ function LingoSearchMongodb(options = {}) {
                     Data.payload = payload.payload;
                 }
                 Data.scores = updateDatas.map( i => ({key: i[0], score: i[1]}) );
-                console.log(Data);
                 resolve( await Data.save() );
             });
         });
