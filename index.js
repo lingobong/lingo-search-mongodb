@@ -49,6 +49,13 @@ function LingoSearchMongodb(options = {}) {
         aggregateBeforeSkip: null,
         aggregateBeforeProject: null,
         aggregateBeforeLimit: null,
+
+        shutdownGroup: false,
+        shutdownSort: false,
+        shutdownProject: false,
+        shutdownLimit: false,
+        shutdownSkip: false,
+
     } ) {
         /**
          * searchOptions
@@ -125,7 +132,7 @@ function LingoSearchMongodb(options = {}) {
                         },
                     });
                 }
-                
+                !shutdownGroup && 
                 aggregate.push({
                     $group: {
                         _id: {
@@ -151,6 +158,7 @@ function LingoSearchMongodb(options = {}) {
                         let orderTypes = { desc: -1, asc: 1, };
                         searchOptions.sort[field] = orderTypes[ searchOptions.sort[field] ] || searchOptions.sort[field];
                     }
+                    !shutdownSort && 
                     aggregate.push({
                         $sort: searchOptions.sort,
                     });
@@ -159,6 +167,7 @@ function LingoSearchMongodb(options = {}) {
 
                 // Aggregate - Project
                 (searchOptions.aggregateBeforeProject || emptyFunction)(aggregate);
+                !shutdownProject && 
                 aggregate.push({
                     $project: {
                         _id: 0,
@@ -172,6 +181,7 @@ function LingoSearchMongodb(options = {}) {
                 // Aggregate - Skip
                 if (!!searchOptions.skip) {
                     (searchOptions.aggregateBeforeSkip || emptyFunction)(aggregate);
+                    !shutdownSkip && 
                     aggregate.push({
                         $skip: searchOptions.skip,
                     });
@@ -180,6 +190,7 @@ function LingoSearchMongodb(options = {}) {
 
                 // Aggregate - Limit
                 (searchOptions.aggregateBeforeLimit || emptyFunction)(aggregate);
+                !shutdownLimit && 
                 aggregate.push({
                     $limit: searchOptions.limit,
                 });
