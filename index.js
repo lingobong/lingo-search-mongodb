@@ -157,15 +157,6 @@ function LingoSearchMongodb(options = {}) {
                     (searchOptions.aggregateAfterSort || emptyFunction)(aggregate);
                 }
 
-                // Aggregate - Skip
-                if (!!searchOptions.skip) {
-                    (searchOptions.aggregateBeforeSkip || emptyFunction)(aggregate);
-                    aggregate.push({
-                        $skip: searchOptions.skip,
-                    });
-                    (searchOptions.aggregateAfterSkip || emptyFunction)(aggregate);
-                }
-
                 // Aggregate - Project
                 (searchOptions.aggregateBeforeProject || emptyFunction)(aggregate);
                 aggregate.push({
@@ -177,6 +168,15 @@ function LingoSearchMongodb(options = {}) {
                     }
                 });
                 (searchOptions.aggregateAfterProject || emptyFunction)(aggregate);
+
+                // Aggregate - Skip
+                if (!!searchOptions.skip) {
+                    (searchOptions.aggregateBeforeSkip || emptyFunction)(aggregate);
+                    aggregate.push({
+                        $skip: searchOptions.skip,
+                    });
+                    (searchOptions.aggregateAfterSkip || emptyFunction)(aggregate);
+                }
 
                 // Aggregate - Limit
                 (searchOptions.aggregateBeforeLimit || emptyFunction)(aggregate);
