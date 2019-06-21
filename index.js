@@ -5,6 +5,7 @@ const models = require('./models');
  * LS.options
  * + modelNames
  */
+const emptyFunction = ()=>{};
 function LingoSearchMongodb(options = {}) {
     const LS = require('lingo-search')(options);
     const LSMModels = models(LS.options.db, options.modelNames);
@@ -28,18 +29,49 @@ function LingoSearchMongodb(options = {}) {
     };
     LSM.prototype.search = async function ( query = '', searchOptions = {
         limit: 50,
-        preMatch: null,
-        postMatch: null,
+        match: null,
         skip: 0,
         sort: null,
+        aggregateAfterMatch: null,
+        aggregateAfterUnwind: null,
+        aggregateAfterFilter: null,
+        aggregateAfterGroup: null,
+        aggregateAfterSort: null,
+        aggregateAfterSkip: null,
+        aggregateAfterProject: null,
+        aggregateAfterLimit: null,
+
+        aggregateBeforeMatch: null,
+        aggregateBeforeUnwind: null,
+        aggregateBeforeFilter: null,
+        aggregateBeforeGroup: null,
+        aggregateBeforeSort: null,
+        aggregateBeforeSkip: null,
+        aggregateBeforeProject: null,
+        aggregateBeforeLimit: null,
     } ) {
         /**
          * searchOptions
             * limit
-            * preMatch
-            * postMatch
+            * match
             * skip
             * sort
+            * aggregateAfterMatch
+            * aggregateAfterUnwind
+            * aggregateAfterFilter
+            * aggregateAfterGroup
+            * aggregateAfterSort
+            * aggregateAfterSkip
+            * aggregateAfterProject
+            * aggregateAfterLimit
+            * aggregateBeforeMatch: null,
+            * aggregateBeforeUnwind: null,
+            * aggregateBeforeFilter: null,
+            * aggregateBeforeGroup: null,
+            * aggregateBeforeSort: null,
+            * aggregateBeforeSkip: null,
+            * aggregateBeforeProject: null,
+            * aggregateBeforeLimit: null,
          */
         let searchResult = await new Promise((resolve, reject) => {
             LS.search(query,searchOptions, async(query, searchOptions) => {
@@ -52,22 +84,36 @@ function LingoSearchMongodb(options = {}) {
                         $in: query.map(q => q[0])
                     }
                 };
-                if ( !!searchOptions.preMatch && searchOptions.preMatch.constructor.name == 'Object' ) {
+                if ( !!searchOptions.match && searchOptions.match.constructor.name == 'Object' ) {
                     firstMatch = {
                         ...firstMatch,
-                        ...searchOptions.preMatch,
+                        ...searchOptions.match,
                     };
                 }
+
+                // Aggregate - Match
+                (searchOptions.aggregateBeforeMatch || emptyFunction)(aggregate);
                 aggregate.push({
                     $match: firstMatch
                 });
-                // unwind
+                (searchOptions.aggregateAfterMatch || emptyFunction)(aggregate);
+
+                // Aggregate - Unwind
+                (searchOptions.aggregateBeforeUnwind || emptyFunction)(aggregate);
                 aggregate.push({
                     $unwind: '$scores'
                 });
+                (searchOptions.aggregateAfterUnwind || emptyFunction)(aggregate);
+                
+                // Aggregate - Filter
                 // filter 
+                (searchOptions.aggregateBeforeFilter || emptyFunction)(aggregate);
                 aggregate.push(aggregate[0]);
+                (searchOptions.aggregateAfterFilter || emptyFunction)(aggregate);
+
+                // Aggregate - Group
                 // sum score
+                (searchOptions.aggregateBeforeGroup || emptyFunction)(aggregate);
                 let branches = [];
                 for (let queryItem of query) {
                     branches.push({
@@ -79,6 +125,7 @@ function LingoSearchMongodb(options = {}) {
                         },
                     });
                 }
+                
                 aggregate.push({
                     $group: {
                         _id: {
@@ -95,12 +142,11 @@ function LingoSearchMongodb(options = {}) {
                         }
                     }
                 });
-                if (!!searchOptions.postMatch) {
-                    aggregate.push({
-                        $match: searchOptions.postMatch
-                    });
-                }
+                (searchOptions.aggregateAfterGroup || emptyFunction)(aggregate);
+
+                // Aggregate - Sort
                 if (!!searchOptions.sort) {// sort check
+                    (searchOptions.aggregateBeforeSort || emptyFunction)(aggregate);
                     for (let field in searchOptions.sort) {
                         let orderTypes = { desc: -1, asc: 1, };
                         searchOptions.sort[field] = orderTypes[ searchOptions.sort[field] ] || searchOptions.sort[field];
@@ -108,12 +154,20 @@ function LingoSearchMongodb(options = {}) {
                     aggregate.push({
                         $sort: searchOptions.sort,
                     });
+                    (searchOptions.aggregateAfterSort || emptyFunction)(aggregate);
                 }
+
+                // Aggregate - Skip
                 if (!!searchOptions.skip) {
+                    (searchOptions.aggregateBeforeSkip || emptyFunction)(aggregate);
                     aggregate.push({
                         $skip: searchOptions.skip,
                     });
+                    (searchOptions.aggregateAfterSkip || emptyFunction)(aggregate);
                 }
+
+                // Aggregate - Project
+                (searchOptions.aggregateBeforeProject || emptyFunction)(aggregate);
                 aggregate.push({
                     $project: {
                         _id: 0,
@@ -122,9 +176,14 @@ function LingoSearchMongodb(options = {}) {
                         score: '$score',
                     }
                 });
+                (searchOptions.aggregateAfterProject || emptyFunction)(aggregate);
+
+                // Aggregate - Limit
+                (searchOptions.aggregateBeforeLimit || emptyFunction)(aggregate);
                 aggregate.push({
                     $limit: searchOptions.limit,
                 });
+                (searchOptions.aggregateAfterLimit || emptyFunction)(aggregate);
 
                 searchResult = 
                     await this.models._LingoSearch
