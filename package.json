@@ -1,6 +1,6 @@
 {
   "name": "lingo-search-mongodb",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "main": "src/lsm.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -8,7 +8,7 @@
   "license": "ISC",
   "description": "LingoSearch : NodeJS Similarity Search-Engine",
   "dependencies": {
-    "lingo-search": "^1.0.10",
+    "lingo-search": "^1.0.12",
     "mongoose": "^5.6.0",
     "runes": "^0.4.3"
   },

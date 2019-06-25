@@ -101,7 +101,6 @@ function LingoSearchMongodb(options = defaultOption) {
                 if ( !Data ) return reject( new Error('this unique_key is not exists') );
                 if ( payload != null ) {
                     Data.payload = payload;
-                    console.log(Data);
                 }
 
                 await Data.save();
