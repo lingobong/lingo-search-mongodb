@@ -59,8 +59,8 @@ function LingoSearchMongodb(options = defaultOption) {
                         this.models._LingoSearch_Score
                             .insertMany(insertDatas.map(i => {
                                 let key_split = i[0].split('/');
-                                let type = key_split[1];
-                                key = key_split[0];
+                                let type = key_split.length == 2 ? key_split[ 0 ] : null;
+                                key = key_split.length == 2 ? key_split[1] : key_split[0];
                                 
                                 return {
                                     key,
@@ -116,8 +116,8 @@ function LingoSearchMongodb(options = defaultOption) {
                 await this.models._LingoSearch_Score
                         .insertMany(updateDatas.map(i => {
                             let key_split = i[0].split('/');
-                            let type = key_split[1];
-                            key = key_split[0];
+                            let type = key_split.length == 2 ? key_split[ 0 ] : null;
+                            key = key_split.length == 2 ? key_split[1] : key_split[0];
                             
                             return {
                                 key,
@@ -151,12 +151,11 @@ function LingoSearchMongodb(options = defaultOption) {
                         $and: query.map(q => {
                             let match = {};
                             let key_split = q[0].split('/');
-                            let type = key_split[1];
-                            let key = key_split[0];
+                            let type = key_split.length == 2 ? key_split[ 0 ] : null;
+                            let key = key_split.length == 2 ? key_split[1] : key_split[0];
                             
                             match.key = key;
                             match.type = type;
-                            
                             return match;
                         })
                     }
