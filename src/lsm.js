@@ -57,13 +57,18 @@ function LingoSearchMongodb(options = defaultOption) {
                     })
                     .then((result)=>{
                         this.models._LingoSearch_Score
-                            .insertMany(insertDatas.map(
-                                i => ({
-                                    key: i[0],
+                            .insertMany(insertDatas.map(i => {
+                                let key_split = i[0].split('/');
+                                let type = key_split[1];
+                                key = key_split[0];
+                                
+                                return {
+                                    key,
+                                    type,
                                     score: i[1],
                                     unique_key: payload.unique_key,
-                                })
-                            ));
+                                }
+                            }));
                         resolve(result);
                     })
                     .catch(reject);
@@ -109,13 +114,18 @@ function LingoSearchMongodb(options = defaultOption) {
                         .deleteMany({ unique_key, });
 
                 await this.models._LingoSearch_Score
-                        .insertMany(updateDatas.map(
-                            i => ({
-                                key: i[0],
+                        .insertMany(updateDatas.map(i => {
+                            let key_split = i[0].split('/');
+                            let type = key_split[1];
+                            key = key_split[0];
+                            
+                            return {
+                                key,
+                                type,
                                 score: i[1],
                                 unique_key,
-                            })
-                        ))
+                            }
+                        }))
 
                 resolve(result);
             });
@@ -137,7 +147,19 @@ function LingoSearchMongodb(options = defaultOption) {
 
                 // Aggregate - Match -> { _id, key, score, unique_key }
                 aggregate.push({
-                    $match: { 'key': { $in: query.map(q => q[0]) } }
+                    $match: { 
+                        $and: query.map(q => {
+                            let match = {};
+                            let key_split = q[0].split('/');
+                            let type = key_split[1];
+                            let key = key_split[0];
+                            
+                            match.key = key;
+                            match.type = type;
+                            
+                            return match;
+                        })
+                    }
                 });
 
                 // Aggregate - Group & score -> { _id, score } // `_id` is `unique_key`

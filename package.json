@@ -1,6 +1,6 @@
 {
   "name": "lingo-search-mongodb",
-  "version": "2.0.3",
+  "version": "2.0.4",
   "main": "src/lsm.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
