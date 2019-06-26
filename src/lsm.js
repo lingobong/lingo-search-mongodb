@@ -148,14 +148,14 @@ function LingoSearchMongodb(options = defaultOption) {
                 // Aggregate - Match -> { _id, key, score, unique_key }
                 aggregate.push({
                     $match: { 
-                        $and: query.map(q => {
+                        $or: query.map(q => {
                             let match = {};
                             let key_split = q[0].split('/');
                             let type = key_split.length == 2 ? key_split[ 0 ] : null;
                             let key = key_split.length == 2 ? key_split[1] : key_split[0];
                             
                             match.key = key;
-                            match.type = type;
+                            if(!!type)match.type = type;
                             return match;
                         })
                     }
@@ -200,7 +200,6 @@ function LingoSearchMongodb(options = defaultOption) {
                 });
                 aggregate.push({ $unwind:'$_root', });
                 aggregate.push({ $project:{ unique_key:1, score:1, payload:'$_root.payload', } });
-
                 searchResult = 
                     await this.models._LingoSearch_Score
                     .aggregate(aggregate);
