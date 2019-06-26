@@ -139,9 +139,14 @@ function LingoSearchMongodb(options = defaultOption) {
         match: null,
         skip: 0,
         sort: null,
+        postAggregate: null,
     } ) {
         let searchResult = await new Promise((resolve, reject) => {
-            LS.search(query,searchOptions, async(query, searchOptions) => {
+            LS.search(query,searchOptions, async(query, _searchOptions) => {
+                searchOptions = {
+                    ...searchOptions,
+                    ..._searchOptions,
+                };
                 let aggregate = [ ];
                 let searchResult = null;
 
@@ -200,6 +205,8 @@ function LingoSearchMongodb(options = defaultOption) {
                 });
                 aggregate.push({ $unwind:'$_root', });
                 aggregate.push({ $project:{ unique_key:1, score:1, payload:'$_root.payload', } });
+                aggregator(aggregate, searchOptions.postAggregate)
+
                 searchResult = 
                     await this.models._LingoSearch_Score
                     .aggregate(aggregate);
