@@ -143,6 +143,7 @@ function LingoSearchMongodb(options = defaultOption) {
     } ) {
         let searchResult = await new Promise((resolve, reject) => {
             LS.search(query,searchOptions, async(query, _searchOptions) => {
+                if ( query.length == 0 ) return resolve([]);
                 searchOptions = {
                     ...searchOptions,
                     ..._searchOptions,
