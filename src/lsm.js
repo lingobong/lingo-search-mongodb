@@ -140,6 +140,7 @@ function LingoSearchMongodb(options = defaultOption) {
         skip: 0,
         sort: null,
         postAggregate: null,
+        allowDiskUse: false,
     } ) {
         let searchResult = await new Promise((resolve, reject) => {
             LS.search(query,searchOptions, async(query, _searchOptions) => {
@@ -208,9 +209,13 @@ function LingoSearchMongodb(options = defaultOption) {
                 aggregate.push({ $project:{ unique_key:1, score:1, payload:'$_root.payload', } });
                 aggregator(aggregate, searchOptions.postAggregate)
 
-                searchResult = 
-                    await this.models._LingoSearch_Score
+                let searchQuery = this.models._LingoSearch_Score
                     .aggregate(aggregate);
+                if (searchOptions.allowDiskUse) {
+                    searchQuery.allowDiskUse(true);
+                }
+
+                searchResult = await searchQuery
 
                 return resolve(searchResult);
             });
